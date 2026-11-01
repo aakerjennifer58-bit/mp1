@@ -1,0 +1,66 @@
+:root {
+  --bg:#0f1115; --card:#171a21; --line:#272b35; --ink:#e6e8ee; --dim:#8b91a1;
+  --ok:#3ecf8e; --bad:#ff6b6b; --accent:#2f7d5a;
+}
+@media (prefers-color-scheme: light) {
+  :root { --bg:#f6f7f9; --card:#fff; --line:#e2e5ea; --ink:#1a1d24; --dim:#6b7280; --accent:#0f7b4f; }
+}
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 ui-sans-serif,system-ui,Segoe UI,sans-serif; }
+main { max-width:680px; margin:0 auto; padding:32px 16px 64px; }
+header { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+h1 { font-size:22px; margin:0; }
+h2 { font-size:17px; margin:0 0 8px; }
+h3 { font-size:13px; margin:14px 0 6px; font-weight:600; display:flex; gap:10px; flex-wrap:wrap; align-items:baseline; }
+.env { font:600 11px/1 ui-monospace,monospace; letter-spacing:.08em; padding:5px 8px; border-radius:5px; }
+.env.live { background:#3a1418; color:#ff8080; }
+.env.sandbox { background:#12301f; color:var(--ok); }
+.hint { color:var(--dim); font-weight:400; font-size:12px; }
+form { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; display:grid; gap:14px; }
+form.row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; }
+label { display:grid; gap:5px; font-size:13px; color:var(--dim); }
+label.check { display:flex; gap:9px; align-items:flex-start; color:var(--ink); font-size:13px; line-height:1.4; }
+input, select { background:var(--bg); color:var(--ink); border:1px solid var(--line);
+  border-radius:8px; padding:10px 11px; font:inherit; width:100%; }
+input[type=checkbox] { width:auto; margin-top:2px; accent-color:var(--accent); }
+input:focus, select:focus { outline:2px solid var(--accent); outline-offset:1px; }
+button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:11px 16px;
+  font:600 15px/1 inherit; cursor:pointer; }
+button:disabled { opacity:.45; cursor:not-allowed; }
+button.ghost { background:transparent; color:var(--dim); border:1px solid var(--line); font-size:13px; padding:7px 12px; }
+section { background:var(--card); border:1px solid var(--line); border-left-width:3px; border-radius:12px;
+  padding:16px 18px; margin-top:16px; }
+section.ok { border-left-color:var(--ok); }
+section.bad { border-left-color:var(--bad); }
+.err { color:var(--bad); margin:0 0 6px; }
+.warn { background:#3a2a10; color:#ffcc7a; border-radius:10px; padding:12px 14px; margin:0 0 16px; }
+@media (prefers-color-scheme: light) { .warn { background:#fff5e0; color:#8a5a00; } }
+pre { background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:12px;
+  overflow:auto; font:12px/1.45 ui-monospace,Consolas,monospace; margin:0; }
+code { font:12px ui-monospace,Consolas,monospace; color:var(--dim); word-break:break-all; }
+a { color:var(--ok); }
+footer { margin-top:28px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size:12px; }
+.entry h3 { margin-top:0; }
+
+/* --- additions for the rebuilt UI --- */
+.right { margin-left:auto; font-size:13px; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:520px) { .grid { grid-template-columns:1fr; } }
+.row.end { justify-content:flex-end; }
+form h2 { margin:0 0 4px; }
+form + form { margin-top:16px; }
+form p.hint { margin:0; }
+.row { display:flex; gap:10px; }
+section.warn-tone { border-left-color:#ffb020; }
+.state { font:600 10px/1 ui-monospace,monospace; letter-spacing:.09em; padding:4px 6px;
+  border-radius:4px; background:var(--bg); border:1px solid var(--line); }
+.ok .state { color:var(--ok); } .bad .state { color:var(--bad); } .warn-tone .state { color:#ffb020; }
+dl { display:grid; grid-template-columns:auto 1fr; gap:4px 14px; margin:8px 0; font-size:13px; }
+dt { color:var(--dim); } dd { margin:0; word-break:break-word; }
+dd.strong { font-weight:700; }
+.balances { font:12px/1.5 ui-monospace,Consolas,monospace; }
+details { margin-top:8px; } summary { cursor:pointer; }
+details pre { margin-top:8px; }
+.strikes { display:flex; align-items:center; gap:14px; justify-content:space-between;
+  border:0; border-radius:10px; padding:12px 14px; font-size:13px; line-height:1.45; }
+.strikes button { flex:none; }

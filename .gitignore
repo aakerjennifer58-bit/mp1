@@ -1,0 +1,9 @@
+.env
+.env*.local
+.vercel
+node_modules
+*.cer
+*.php
+share.bat
+/style.css
+README.md

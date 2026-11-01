@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/api/index" },
+    { "source": "/logs", "destination": "/api/logs" },
+    { "source": "/callback", "destination": "/api/callback" }
+  ],
+  "functions": { "api/*.js": { "maxDuration": 60 } }
+}
