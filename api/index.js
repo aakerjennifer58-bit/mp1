@@ -67,18 +67,20 @@ module.exports = async (req, res) => {
   let result = null;
   if (b.action) {
     try {
+      if (!m.redisOk()) throw new Error('Redis is not connected — sending and queries are disabled until it is.');
       if (!actions[b.action]) throw new Error('Unknown action');
       result = await actions[b.action](b);
     } catch (e) {
       result = { error: e.message };
     }
-    await m.mlog(b.action, { result });
+    if (m.redisOk()) await m.mlog(b.action, { result });
   }
 
   const live = m.isLive();
   const cb = m.callbackBase();
   const ok = m.configured();
-  const strikes = await m.initiatorStrikes();
+  const redisOk = m.redisOk();
+  const strikes = redisOk ? await m.initiatorStrikes() : 0;
   const dis = (cond) => (cond ? '' : 'disabled');
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -91,6 +93,7 @@ module.exports = async (req, res) => {
     <span class="env ${live ? 'live' : 'sandbox'}">${live ? 'LIVE' : 'SANDBOX'}</span>
     <a href="/logs" class="right">Callback log →</a> <a href="/logout">Sign out</a></header>
 
+  ${redisOk ? '' : '<p class="warn">Redis is not connected: sending, status and balance queries are disabled (no log, no lockout guard). Add Upstash Redis in Vercel and redeploy.</p>'}
   ${ok ? '' : '<p class="warn">Set CONSUMER_KEY, CONSUMER_SECRET, SHORTCODE, INITIATOR_NAME and SECURITY_CREDENTIAL in Vercel env vars, then redeploy.</p>'}
   ${cb ? '' : '<p class="warn">No public callback URL (set CALLBACK_BASE) — sending would move money you could never confirm.</p>'}
   ${strikes > 0 ? `<form method="post" class="warn strikes"><span><strong>${strikes}</strong> consecutive initiator rejection${strikes === 1 ? '' : 's'}.
@@ -110,7 +113,7 @@ module.exports = async (req, res) => {
     <label>Remarks <input name="remarks" value="${h(b.remarks ?? 'B2C test')}"></label>
     ${live ? `<label class="check"><input type="checkbox" name="confirm" value="yes" required>
       This moves <strong>real money</strong> out of shortcode ${h(process.env.SHORTCODE)}. B2C cannot be reversed through the API.</label>` : ''}
-    <button name="action" value="send" ${dis(ok && cb)}>Send payment</button>
+    <button name="action" value="send" ${dis(ok && cb && redisOk)}>Send payment</button>
   </form>
 
   <form method="post" autocomplete="off">
@@ -121,8 +124,8 @@ module.exports = async (req, res) => {
       <label>or our originator id <span class="hint">the <code>test-…</code> key</span> <input name="originator" value="${h(b.originator ?? '')}"></label>
     </div>
     <div class="row">
-      <button name="action" value="status" class="ghost" ${dis(ok)}>Query status</button>
-      <button name="action" value="balance" class="ghost" ${dis(ok)}>Check float</button>
+      <button name="action" value="status" class="ghost" ${dis(ok && redisOk)}>Query status</button>
+      <button name="action" value="balance" class="ghost" ${dis(ok && redisOk)}>Check float</button>
     </div>
     <p class="hint"><strong>Start here.</strong> Check float moves no money and proves the loop: the keys authenticate, the initiator holds its roles, Vercel's IP is accepted, and Safaricom can reach the callback.</p>
     <p class="hint">B2C debits the <strong>Utility</strong> account, not Working.</p>

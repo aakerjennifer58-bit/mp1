@@ -4,6 +4,7 @@ const { authed } = require('../lib/auth');
 
 module.exports = async (req, res) => {
   if (!authed(req, res)) return;
+  if (!m.redisOk()) return res.status(200).send('<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="/style.css"><main><p class="warn">Redis is not connected, so there is no log. <a href="/">Back</a></p></main>');
   if (req.method === 'POST' && req.body?.clear) {
     await m.clearLog();
     return res.redirect(303, '/logs');
