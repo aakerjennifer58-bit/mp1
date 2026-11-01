@@ -1,8 +1,9 @@
 const m = require('../lib/mpesa');
 const { h } = m;
+const { authed } = require('../lib/auth');
 
 module.exports = async (req, res) => {
-  if (!m.authed(req, res)) return;
+  if (!authed(req, res)) return;
   if (req.method === 'POST' && req.body?.clear) {
     await m.clearLog();
     return res.redirect(303, '/logs');

@@ -48,3 +48,14 @@ assert.strictEqual(m.initiatorCodeFrom({ ResultCode: 0 }), '0');
 assert.strictEqual(m.initiatorCodeFrom({ _http_status: 500 }), null);
 
 console.log('OK — all checks passed');
+
+// --- auth: RFC 6238 vector (secret "12345678901234567890", t=59s -> ...287082) and session signing
+process.env.ADMIN_PASSWORD = 'pw'; process.env.CONSUMER_SECRET = 'cs';
+const a = require('./lib/auth');
+assert.strictEqual(a.totp('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 59000), '287082');
+const sid = a.issue();
+assert.ok(a.validSession(`x=1; sid=${sid}`));
+assert.ok(!a.validSession(`sid=${sid}x`), 'tampered signature');
+assert.ok(!a.validSession(`sid=${Math.floor(Date.now() / 1000) - 5}.${a.sign(Math.floor(Date.now() / 1000) - 5)}`), 'expired');
+assert.ok(!a.validSession(''));
+console.log('OK — auth checks passed');

@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const m = require('../lib/mpesa');
 const { h } = m;
+const { authed } = require('../lib/auth');
 
 async function doSend(b) {
   if (m.isLive() && b.confirm !== 'yes') throw new Error('Tick the confirmation box — this sends real money.');
@@ -60,7 +61,7 @@ const actions = {
 };
 
 module.exports = async (req, res) => {
-  if (!m.authed(req, res)) return;
+  if (!authed(req, res)) return;
 
   const b = (req.method === 'POST' && req.body) || {};
   let result = null;
@@ -88,7 +89,7 @@ module.exports = async (req, res) => {
 <main>
   <header><h1>M-Pesa B2C Tester</h1>
     <span class="env ${live ? 'live' : 'sandbox'}">${live ? 'LIVE' : 'SANDBOX'}</span>
-    <a href="/logs" class="right">Callback log →</a></header>
+    <a href="/logs" class="right">Callback log →</a> <a href="/logout">Sign out</a></header>
 
   ${ok ? '' : '<p class="warn">Set CONSUMER_KEY, CONSUMER_SECRET, SHORTCODE, INITIATOR_NAME and SECURITY_CREDENTIAL in Vercel env vars, then redeploy.</p>'}
   ${cb ? '' : '<p class="warn">No public callback URL (set CALLBACK_BASE) — sending would move money you could never confirm.</p>'}
