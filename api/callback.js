@@ -17,6 +17,10 @@ module.exports = async (req, res) => {
     body: body ?? String(raw ?? ''),
   });
 
+  // Latest balance, so the main page can show it without digging through the log.
+  const bal = body && m.summariseCallback(body, kind).balances;
+  if (bal) await m.redis('SET', 'mpesa:balance', JSON.stringify({ ts: new Date().toISOString(), balances: bal }));
+
   // An initiator rejection usually arrives here, not in the send's reply.
   if (body) {
     const code = body.Result?.ResultCode;

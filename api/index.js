@@ -81,6 +81,8 @@ module.exports = async (req, res) => {
   const ok = m.configured();
   const redisOk = m.redisOk();
   const strikes = redisOk ? await m.initiatorStrikes() : 0;
+  let lastBal = null;
+  if (redisOk) { try { lastBal = JSON.parse(await m.redis('GET', 'mpesa:balance')); } catch { /* none yet */ } }
   const dis = (cond) => (cond ? '' : 'disabled');
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -99,6 +101,14 @@ module.exports = async (req, res) => {
   ${strikes > 0 ? `<form method="post" class="warn strikes"><span><strong>${strikes}</strong> consecutive initiator rejection${strikes === 1 ? '' : 's'}.
       ${strikes >= 3 ? 'Sending is blocked — the next attempts risk 8006, a lockout only your Business Administrator can undo.' : 'Three in a row blocks sending, because Safaricom locks the credential.'}</span>
       <button name="action" value="unlock" class="ghost">Clear count</button></form>` : ''}
+
+  <form method="post" autocomplete="off">
+    <h2>Paybill balance <span class="hint">shortcode ${h(process.env.SHORTCODE)}</span></h2>
+    ${lastBal ? `<dl class="balances">${Object.entries(lastBal.balances).map(([n, a]) => `<dt>${h(n)}</dt><dd${n.includes('Utility') ? ' class="strong"' : ''}>KSh ${a.toFixed(2)}</dd>`).join('')}</dl>
+      <p class="hint">As of ${h(lastBal.ts)}. Available, not current. B2C spends the Utility account.</p>`
+      : '<p class="hint">No balance yet. Press the button, then wait a few seconds and reload — the answer comes from Safaricom, not instantly.</p>'}
+    <button name="action" value="balance" class="ghost" ${dis(ok && redisOk)}>Check paybill balance</button>
+  </form>
 
   <form method="post" autocomplete="off">
     <h2>Send a payment</h2>
@@ -125,7 +135,6 @@ module.exports = async (req, res) => {
     </div>
     <div class="row">
       <button name="action" value="status" class="ghost" ${dis(ok && redisOk)}>Query status</button>
-      <button name="action" value="balance" class="ghost" ${dis(ok && redisOk)}>Check float</button>
     </div>
     <p class="hint"><strong>Start here.</strong> Check float moves no money and proves the loop: the keys authenticate, the initiator holds its roles, Vercel's IP is accepted, and Safaricom can reach the callback.</p>
     <p class="hint">B2C debits the <strong>Utility</strong> account, not Working.</p>
